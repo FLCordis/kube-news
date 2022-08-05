@@ -1,31 +1,34 @@
 name: CI-CD
 
-# Controls when the workflow will run
+# Controlando o flow do projeto
 on:
-  # Trigger
+  # Oque vai disparar o Actions para funcionar.
   push:
     branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Rodando ele manualmente
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# As jobs que serão feitas.
 jobs:
   # This workflow contains a single job called "build"
   CI:
+    # O SO usado para o trabalho da imagem.
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checando o WORKSPACE para os Jobs acessar.
       - uses: actions/checkout@v3
       
+      #Login e Auth no Docker.
       - name: Docker Login
         uses: docker/login-action@v2.0.0
         with:
+          # Secrets pega a variável que não mostra os dados sensíveis para uso, de um jeito seguro.
           username: ${{secrets.DOCKERHUB_USER}}
           password: ${{secrets.DOCKERHUB_PWD}}
           
-      - name: Build and push Docker images
+      - name: Construindo e dando Push nas imagens
         uses: docker/build-push-action@v3.1.1
         with:
           file: ./src/Dockerfile
@@ -41,17 +44,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Kubernetes Set Context
-        uses: Azure/k8s-set-context@v3.0
-        with:
-          method: kubeconfig
-          kubeconfig: ${{secrets.K8S_CONFIG}}
-          
-      - name: Deploy to Kubernetes cluster
-        uses: Azure/k8s-deploy@v4.3
-        with:
-          images: flcordis/kube-news:${{github.run_number}}
-          manifests: |
-            k8s/deployment.yaml
+      
+#      
+#      - name: Contexto do Kubernetes onde vai pegar os dados dos Pods e etc.
+#        uses: Azure/k8s-set-context@v3.0
+#        with:
+#          method: kubeconfig
+#          kubeconfig: ${{secrets.K8S_CONFIG}}
+#          
+#      - name: Kubernetes cluster
+#        uses: Azure/k8s-deploy@v4.3
+#        with:
+#          images: flcordis/kube-news:${{github.run_number}}
+#          manifests: |
+#            k8s/deployment.yaml
           
       
