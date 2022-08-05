@@ -26,5 +26,15 @@ jobs:
       - name: Docker Login
         uses: docker/login-action@v2.0.0
         with:
-          username: ${{DOCKERHUB_USER}}
-          password: ${{DOCKERHUB_PWD}}
+          username: ${{secrets.DOCKERHUB_USER}}
+          password: ${{secrets.DOCKERHUB_PWD}}
+          
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3.1.1
+        with:
+          file: ./src/Dockerfile
+          context: ./src
+          push: true
+          tags: |
+            flcordis/kube-news:latest
+            flcordis/kube-news:${{github.run_number}}
